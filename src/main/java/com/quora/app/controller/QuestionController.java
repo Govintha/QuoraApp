@@ -39,9 +39,11 @@ public class QuestionController {
                 .doOnError(error-> log.error("Something went wrong while save question {}",error.getMessage()));
     }
 
+    //Pagination with cursor
     @GetMapping
-    public Flux<QuestionResponseDTO> getAllQuestions(){
-        return questionService.getAllQuestions()
+    public Flux<QuestionResponseDTO> getAllQuestions(@RequestParam(required = false) String cursor,
+                                                     @RequestParam(required = false) int size){
+        return questionService.getAllQuestions(cursor,size)
                 .doOnComplete(()->log.info("Success Fully Created "))
                 .doOnError(error->log.info("Something went wrong while save question {}",error.getMessage()));
 
@@ -53,5 +55,17 @@ public class QuestionController {
                 .doOnSuccess((response)->log.info("Success Fully Deleted "))
                 .doOnError(error->log.info("Something went wrong unable to delete {}",error.getMessage()));
 
+    }
+
+    //Pagination with offset
+    @GetMapping("/search")
+    public Flux<QuestionResponseDTO> searchTitleOrContent(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(defaultValue ="0") int page,
+            @RequestParam(defaultValue ="2") int size){
+
+        return questionService.searchTitleORContent(searchText,page,size)
+                .doOnComplete(()->log.info("Success Fully fetched"))
+                .doOnError(error->log.info("Something went wrong while fetched question {}",error.getMessage()));
     }
 }
