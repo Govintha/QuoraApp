@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.*;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private Instant  updatedAt;
     @CreatedBy
+    @Indexed
     private String createdBy;
     @LastModifiedBy
     private String updatedBy;
