@@ -1,15 +1,15 @@
 package com.quora.app.controller;
 
-import com.quora.app.kafka.producer.KafkaProducerService;
+import com.quora.app.kafka.producer.KafkaEventProducerService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/kafka")
 public class KafkaController {
 
-    private final KafkaProducerService producer;
+    private final KafkaEventProducerService producer;
 
-    public KafkaController(KafkaProducerService producer) {
+    public KafkaController(KafkaEventProducerService producer) {
         this.producer = producer;
     }
 

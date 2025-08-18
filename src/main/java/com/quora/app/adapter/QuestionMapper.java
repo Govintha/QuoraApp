@@ -13,6 +13,7 @@ public final class QuestionMapper {
             return Question.builder()
                     .title(questionRequestDTO.getTitle())
                     .content(questionRequestDTO.getContent())
+                    .tags(questionRequestDTO.getTags())
                     .createdAt(Instant.now())
                     .updatedAt(Instant.now())
                     .build();
@@ -25,6 +26,7 @@ public final class QuestionMapper {
                    .title(question.getTitle())
                    .content(question.getContent())
                    .createdAt(question.getCreatedAt())
+                   .viewCount(question.getViews())
                    .build();
         }
 }

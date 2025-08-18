@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 
 @Setter
 @Getter
@@ -28,6 +29,13 @@ public class Question extends BaseEntity {
     @Size(min = 5,max = 1000,message = "Content must be between 10 to 100 character")
     private String content;
 
-    private Integer views;
+    private Integer views=0;
+    private List<Tag> tags;
 
+    public void incrementViews() {
+        if (views == null) {
+            views = 0;
+        }
+        views++;
+    }
 }

@@ -4,6 +4,9 @@ import com.quora.app.adapter.QuestionMapper;
 import com.quora.app.dto.QuestionRequestDTO;
 import com.quora.app.dto.QuestionResponseDTO;
 import com.quora.app.entity.Question;
+import com.quora.app.enumaration.TargetType;
+import com.quora.app.events.ViewCountEvent;
+import com.quora.app.kafka.producer.KafkaEventProducerService;
 import com.quora.app.repository.QuestionRepository;
 import com.quora.app.utils.CursorUtils;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import java.time.Instant;
 public class QuestionServiceImpl implements IQuestionService{
 
     private final QuestionRepository questionRepository;
+    private final KafkaEventProducerService kafkaProducerService;
 
     @Override
     public Mono<QuestionResponseDTO> createQuestion(QuestionRequestDTO questionDTO) {
@@ -44,7 +48,16 @@ public class QuestionServiceImpl implements IQuestionService{
         return questionRepository
                 .findById(questionId)
                 .map(QuestionMapper::toResponseDTO)
-                .doOnSuccess(response-> log.info("Success Fully fetched "))
+                .doOnSuccess(response->{{
+                    log.info("Success Fully fetched ");
+                    kafkaProducerService.sendViewEvent(
+                                     ViewCountEvent.builder()
+                                    .targetId(questionId)
+                                    .targetType(TargetType.QUESTION)
+                                    .viewedAt(Instant.now())
+                                     .build());
+                }
+                })
                 .doOnError(error-> log.error("Something went wrong while fetched question {}",error.getMessage()));
 
     }
@@ -88,6 +101,16 @@ public class QuestionServiceImpl implements IQuestionService{
                 .map(QuestionMapper::toResponseDTO)
                 .doOnComplete(()->log.info("Success Fully fetched"))
                 .doOnError(error->log.info("Something went wrong while fetched question {}",error.getMessage()));
+    }
+
+    @Override
+    public Flux<QuestionResponseDTO> getQuestionByTagName(String tagName) {
+
+        return questionRepository.findByTagsTag(tagName)
+                .map(QuestionMapper::toResponseDTO)
+                .doOnComplete(()->log.info("Success Fully fetched"))
+                .doOnError(error->log.info("Something went wrong while fetched question {}",error.getMessage()));
+
     }
 
 }

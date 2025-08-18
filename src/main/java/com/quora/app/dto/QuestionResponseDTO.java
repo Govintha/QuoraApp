@@ -17,6 +17,7 @@ public class QuestionResponseDTO {
     private String id;
     private String content;
     private String title;
+    private Integer viewCount;
     private Instant  createdAt;
 
 

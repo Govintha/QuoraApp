@@ -2,10 +2,7 @@ package com.quora.app.controller;
 
 import com.quora.app.dto.QuestionRequestDTO;
 import com.quora.app.dto.QuestionResponseDTO;
-import com.quora.app.entity.Question;
 import com.quora.app.service.IQuestionService;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -67,5 +64,13 @@ public class QuestionController {
         return questionService.searchTitleORContent(searchText,page,size)
                 .doOnComplete(()->log.info("Success Fully fetched"))
                 .doOnError(error->log.info("Something went wrong while fetched question {}",error.getMessage()));
+    }
+
+    @GetMapping("/tags/{tagName}")
+    public Flux<QuestionResponseDTO> getQuestionByTagName(@PathVariable  String tagName){
+        return questionService.getQuestionByTagName(tagName)
+                .doOnComplete(()->log.info("Success Fully fetched"))
+                .doOnError(error->log.info("Something went wrong while fetched question {}",error.getMessage()));
+
     }
 }
