@@ -22,5 +22,5 @@ public class Answer extends  BaseEntity{
     private String content;
 
     @Indexed
-    private String questionID;
+    private String questionId;
 }

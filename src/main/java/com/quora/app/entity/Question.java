@@ -32,6 +32,8 @@ public class Question extends BaseEntity {
     private Integer views=0;
     private List<Tag> tags;
 
+    private List<String> answerID;
+
     public void incrementViews() {
         if (views == null) {
             views = 0;
