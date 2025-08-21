@@ -5,6 +5,7 @@ import com.quora.app.adapter.QuestionAnswerMapper;
 import com.quora.app.adapter.QuestionMapper;
 import com.quora.app.dto.AnswerRequestDTO;
 import com.quora.app.dto.AnswerResponseDTO;
+import com.quora.app.dto.NewUserResponseDTO;
 import com.quora.app.dto.QuestionAnswerDTO;
 import com.quora.app.entity.Answer;
 import com.quora.app.repository.AnswerRepository;
@@ -23,9 +24,11 @@ public class AnswerServiceImpl implements IAnswerService{
 
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
+    private final IUserService userService;
 
     @Override
     public Mono<AnswerResponseDTO> createAnswer(AnswerRequestDTO answerRequestDTO) {
+        userService.getUser(answerRequestDTO.getUserId());
         return answerRepository.save(AnswerMapper.toEntity(answerRequestDTO))
                 .flatMap(savedAnswer ->
                         questionRepository.findById(savedAnswer.getQuestionId())

@@ -16,6 +16,7 @@ public final class AnswerMapper {
          return  AnswerResponseDTO.builder()
                  .id(answer.getId())
                  .content(answer.getContent())
+                 .userId(answer.getUserId())
                  .createdAt(Instant.now())
                  .build();
 
@@ -24,9 +25,10 @@ public final class AnswerMapper {
      public static Answer toEntity(AnswerRequestDTO requestDTO){
 
         return Answer.builder()
-                 .questionId(requestDTO.getQuestionID())
+                 .questionId(requestDTO.getQuestionId())
                  .content(requestDTO.getContent())
                  .createdAt(Instant.now())
+                .userId(requestDTO.getUserId())
                  .updatedAt(Instant.now())
                  .build();
      }

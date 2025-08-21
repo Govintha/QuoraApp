@@ -1,5 +1,6 @@
 package com.quora.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quora.app.entity.Tag;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,4 +26,6 @@ public class QuestionRequestDTO {
     private String content;
 
     private List<Tag> tags;
+    @JsonProperty("userId")
+    private Integer userId;
 }

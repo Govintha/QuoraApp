@@ -6,21 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuestionResponseDTO {
+public class NewUserResponseDTO {
 
-    private String id;
-    private String content;
-    private String title;
     private Integer userId;
-    private Integer viewCount;
-    private Instant  createdAt;
-
-
+    private String userName;
+    private Instant createdAt;
+    private List<Integer> followerId;
+    private List<Integer> followingId;
 
 }

@@ -23,4 +23,7 @@ public class Answer extends  BaseEntity{
 
     @Indexed
     private String questionId;
+
+    @Indexed
+    private Integer  userId;
 }

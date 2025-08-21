@@ -4,12 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -17,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-@Document(collection = "questions")
 @ToString(callSuper = true)
+@Document(collection = "questions")
 public class Question extends BaseEntity {
 
     @NotBlank(message = "Title should be not Blank")
@@ -32,7 +29,10 @@ public class Question extends BaseEntity {
     private Integer views=0;
     private List<Tag> tags;
 
-    private List<String> answerID;
+    private List<String> answerID=new ArrayList<>();
+
+    @Indexed
+    private Integer userId;
 
     public void incrementViews() {
         if (views == null) {

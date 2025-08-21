@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Repository
@@ -24,6 +25,9 @@ public interface QuestionRepository extends ReactiveMongoRepository<Question,Str
     Flux<Question> findAllByOrderByCreatedAtAsc(Pageable pageable);
 
     Flux<Question> findByTagsTag(String tag);
+
+    Flux<Question> findByCreatedByInOrderByCreatedAtDesc(List<String> userIds, Pageable pageable);
+
 
 
 
