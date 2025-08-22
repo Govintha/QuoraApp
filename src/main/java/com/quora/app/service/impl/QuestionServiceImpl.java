@@ -1,15 +1,15 @@
-package com.quora.app.service;
+package com.quora.app.service.impl;
 
 import com.quora.app.adapter.QuestionMapper;
-import com.quora.app.dto.NewUserResponseDTO;
 import com.quora.app.dto.QuestionRequestDTO;
 import com.quora.app.dto.QuestionResponseDTO;
 import com.quora.app.entity.Question;
-import com.quora.app.entity.User;
 import com.quora.app.enumaration.TargetType;
 import com.quora.app.events.ViewCountEvent;
 import com.quora.app.kafka.producer.KafkaEventProducerService;
 import com.quora.app.repository.QuestionRepository;
+import com.quora.app.service.IQuestionService;
+import com.quora.app.service.IUserService;
 import com.quora.app.utils.CursorUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.time.Instant;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class QuestionServiceImpl implements IQuestionService{
+public class QuestionServiceImpl implements IQuestionService {
 
     private final QuestionRepository questionRepository;
     private final KafkaEventProducerService kafkaProducerService;
@@ -33,8 +33,8 @@ public class QuestionServiceImpl implements IQuestionService{
     @Override
     public Mono<QuestionResponseDTO> createQuestion(QuestionRequestDTO questionDTO) {
         //to check valid User
-        Mono<NewUserResponseDTO> user = userService.getUser(questionDTO.getUserId());
-
+        userService.getUser(questionDTO.getUserId())
+                .switchIfEmpty(Mono.error(new RuntimeException("User Not found")));
         Question entity = QuestionMapper.toEntity(questionDTO);
         log.info("Final Question Entity {}",entity);
       return questionRepository.save(entity)

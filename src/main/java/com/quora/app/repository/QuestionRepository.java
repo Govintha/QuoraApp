@@ -27,6 +27,10 @@ public interface QuestionRepository extends ReactiveMongoRepository<Question,Str
     Flux<Question> findByTagsTag(String tag);
 
     Flux<Question> findByCreatedByInOrderByCreatedAtDesc(List<String> userIds, Pageable pageable);
+    Flux<Question> findByUserIdIn(List<Integer> userIds);
+    Flux<Question> findByUserIdInOrderByCreatedAtDesc(List<Integer> userIds);
+
+
 
 
 

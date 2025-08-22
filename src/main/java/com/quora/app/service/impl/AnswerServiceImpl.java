@@ -1,15 +1,14 @@
-package com.quora.app.service;
+package com.quora.app.service.impl;
 
 import com.quora.app.adapter.AnswerMapper;
 import com.quora.app.adapter.QuestionAnswerMapper;
-import com.quora.app.adapter.QuestionMapper;
 import com.quora.app.dto.AnswerRequestDTO;
 import com.quora.app.dto.AnswerResponseDTO;
-import com.quora.app.dto.NewUserResponseDTO;
 import com.quora.app.dto.QuestionAnswerDTO;
-import com.quora.app.entity.Answer;
 import com.quora.app.repository.AnswerRepository;
 import com.quora.app.repository.QuestionRepository;
+import com.quora.app.service.IAnswerService;
+import com.quora.app.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AnswerServiceImpl implements IAnswerService{
+public class AnswerServiceImpl implements IAnswerService {
 
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;

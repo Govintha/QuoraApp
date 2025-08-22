@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -25,7 +26,7 @@ public class QuestionRequestDTO {
     @Size(min = 5,max = 1000,message = "Content must be between 10 to 100 character")
     private String content;
 
-    private List<Tag> tags;
+    private List<Tag> tags=new ArrayList<>();
     @JsonProperty("userId")
     private Integer userId;
 }

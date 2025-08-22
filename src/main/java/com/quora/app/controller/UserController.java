@@ -1,8 +1,10 @@
 package com.quora.app.controller;
 
+import com.quora.app.dto.FeedResponseDTO;
 import com.quora.app.dto.NewUserRequestDTO;
 import com.quora.app.dto.NewUserResponseDTO;
 import com.quora.app.service.IUserService;
+import jakarta.validation.Path;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,13 @@ public class UserController {
                 .doOnError(error -> log.error("User not added due to {}", error.getMessage()));
     }
 
+    @GetMapping("/{userId}/feed")
+    public Mono<FeedResponseDTO> getUserFeed(@PathVariable  Integer userId){
+
+         return userService.getUserFeed(userId)
+                 .doOnSuccess(response->log.info("Able get Feed"))
+                 .doOnError(error->log.error("Unable to get Feed"));
+    }
 
 
 

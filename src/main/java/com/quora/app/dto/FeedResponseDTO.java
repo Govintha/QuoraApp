@@ -5,15 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class QuestionAnswerDTO {
-
-    private String questionID;
-    private List<AnswerResponseDTO> lisOfAnswers=new ArrayList<>();
+@NoArgsConstructor
+public class FeedResponseDTO {
+    private Integer userId;
+    private List<FeedItemDTO> feed;
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,7 +18,7 @@ public class NewUserResponseDTO {
     private Integer userId;
     private String userName;
     private Instant createdAt;
-    private List<Integer> followerId;
-    private List<Integer> followingId;
+    private List<Integer> followerId=new ArrayList<>();
+    private List<Integer> followingId=new ArrayList<>();
 
 }

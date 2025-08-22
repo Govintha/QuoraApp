@@ -1,4 +1,4 @@
-package com.quora.app.service;
+package com.quora.app.service.impl;
 
 import com.quora.app.entity.Counter;
 import org.springframework.beans.factory.annotation.Autowired;
