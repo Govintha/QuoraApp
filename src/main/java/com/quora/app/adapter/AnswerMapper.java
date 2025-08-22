@@ -16,7 +16,9 @@ public final class AnswerMapper {
          return  AnswerResponseDTO.builder()
                  .id(answer.getId())
                  .content(answer.getContent())
+                 .tags(answer.getTags())
                  .userId(answer.getUserId())
+                 .views(answer.getViews())
                  .createdAt(Instant.now())
                  .build();
 
@@ -28,7 +30,8 @@ public final class AnswerMapper {
                  .questionId(requestDTO.getQuestionId())
                  .content(requestDTO.getContent())
                  .createdAt(Instant.now())
-                .userId(requestDTO.getUserId())
+                 .userId(requestDTO.getUserId())
+                 .tags(requestDTO.getTags())
                  .updatedAt(Instant.now())
                  .build();
      }

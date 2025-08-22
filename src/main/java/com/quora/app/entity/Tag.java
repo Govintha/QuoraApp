@@ -9,10 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(callSuper = true)
+@ToString
 @SuperBuilder
-@Document(collection = "tags")
-public class Tag  extends  BaseEntity{
+public class Tag{
 
     @NotBlank(message = "Tags cannot be null and empty ")
     String tag;

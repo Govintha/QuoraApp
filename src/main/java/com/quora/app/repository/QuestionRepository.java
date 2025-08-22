@@ -2,15 +2,14 @@ package com.quora.app.repository;
 
 import com.quora.app.entity.Answer;
 import com.quora.app.entity.Question;
+import com.quora.app.entity.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -28,8 +27,13 @@ public interface QuestionRepository extends ReactiveMongoRepository<Question,Str
 
     Flux<Question> findByCreatedByInOrderByCreatedAtDesc(List<String> userIds, Pageable pageable);
     Flux<Question> findByUserIdIn(List<Integer> userIds);
-    Flux<Question> findByUserIdInOrderByCreatedAtDesc(List<Integer> userIds);
+    Flux<Question> findByUserIdInAndCreatedAtLessThanOrderByCreatedAtDesc(
+            List<Integer> userIds, Instant cursor, Pageable pageable
+    );
 
+    Flux<Question> findByTags_TagInAndCreatedAtBeforeOrderByCreatedAtDesc(
+            List<String> tags, Instant cursor, Pageable pageable
+    );
 
 
 

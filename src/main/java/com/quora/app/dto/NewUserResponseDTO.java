@@ -1,5 +1,6 @@
 package com.quora.app.dto;
 
+import com.quora.app.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,5 +21,6 @@ public class NewUserResponseDTO {
     private Instant createdAt;
     private List<Integer> followerId=new ArrayList<>();
     private List<Integer> followingId=new ArrayList<>();
+    private List<Tag> tags=new ArrayList<>();
 
 }

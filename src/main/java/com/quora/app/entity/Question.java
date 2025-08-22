@@ -27,17 +27,17 @@ public class Question extends BaseEntity {
     private String content;
 
     private Integer views=0;
-    private List<Tag> tags;
-
+    private List<Tag> tags=new ArrayList<>();
     private List<String> answerID=new ArrayList<>();
+
 
     @Indexed
     private Integer userId;
 
     public void incrementViews() {
-        if (views == null) {
-            views = 0;
+        if (this.views == null) {
+            this.views = 0;
         }
-        views++;
+        this.views++;
     }
 }

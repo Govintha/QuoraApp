@@ -5,6 +5,9 @@ import com.quora.app.adapter.QuestionAnswerMapper;
 import com.quora.app.dto.AnswerRequestDTO;
 import com.quora.app.dto.AnswerResponseDTO;
 import com.quora.app.dto.QuestionAnswerDTO;
+import com.quora.app.enumaration.TargetType;
+import com.quora.app.events.ViewCountEvent;
+import com.quora.app.kafka.producer.KafkaEventProducerService;
 import com.quora.app.repository.AnswerRepository;
 import com.quora.app.repository.QuestionRepository;
 import com.quora.app.service.IAnswerService;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 @Service
@@ -24,6 +28,7 @@ public class AnswerServiceImpl implements IAnswerService {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
     private final IUserService userService;
+    private final KafkaEventProducerService kafkaProducerService;
 
     @Override
     public Mono<AnswerResponseDTO> createAnswer(AnswerRequestDTO answerRequestDTO) {
@@ -64,7 +69,15 @@ public class AnswerServiceImpl implements IAnswerService {
     public Mono<AnswerResponseDTO> getAnswerByID(String id) {
         return answerRepository.findById(id)
                 .map(AnswerMapper::toAnswerResponseDTO)
-                .doOnSuccess((response)-> log.info("SuccessFully Fetch Anseer"))
+                .doOnSuccess((response)-> {
+                    kafkaProducerService.sendViewEvent(
+                            ViewCountEvent.builder()
+                                    .targetId(id)
+                                    .targetType(TargetType.ANSWER)
+                                    .viewedAt(Instant.now())
+                                    .build());
+                })
+
                 .doOnError((error)->log.error("Unable to fetch answer due to {}",error.getMessage()));
     }
 

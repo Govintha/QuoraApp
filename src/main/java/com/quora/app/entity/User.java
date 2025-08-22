@@ -31,4 +31,6 @@ public class User extends BaseEntity {
     private List<Integer> followingIds = new ArrayList<>();
 
     private List<Integer> followerIds = new ArrayList<>();
+
+    private List<Tag> tags=new ArrayList<>();
 }

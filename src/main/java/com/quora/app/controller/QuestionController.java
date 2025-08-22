@@ -40,7 +40,7 @@ public class QuestionController {
     //Pagination with cursor
     @GetMapping
     public Flux<QuestionResponseDTO> getAllQuestions(@RequestParam(required = false) String cursor,
-                                                     @RequestParam(required = false) int size){
+                                                     @RequestParam(required = false,defaultValue = "2") int size){
         return questionService.getAllQuestions(cursor,size)
                 .doOnComplete(()->log.info("Success Fully Created "))
                 .doOnError(error->log.info("Something went wrong while save question {}",error.getMessage()));

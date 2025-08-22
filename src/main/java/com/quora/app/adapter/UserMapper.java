@@ -11,11 +11,12 @@ import java.time.Instant;
 public final class UserMapper {
 
     public static NewUserResponseDTO toNewUserResponse(User user){
-        log.info("User Data From DB {}",user);
+
        return NewUserResponseDTO.builder()
                .userId(user.getUserId())
                .followerId(user.getFollowerIds())
                .followingId(user.getFollowingIds())
+               .tags(user.getTags())
                .userName(user.getUsername())
                .createdAt(user.getCreatedAt())
                .build();
@@ -25,6 +26,7 @@ public final class UserMapper {
         return User.builder()
                 .username(dto.getUserName())
                 .createdAt(Instant.now())
+                .tags(dto.getTags())
                 .updatedAt(Instant.now())
                 .build();
     }

@@ -30,6 +30,7 @@ public final class QuestionMapper {
                    .title(question.getTitle())
                    .content(question.getContent())
                    .createdAt(question.getCreatedAt())
+                   .tags(question.getTags())
                    .userId(question.getUserId())
                    .viewCount(question.getViews())
                    .build();

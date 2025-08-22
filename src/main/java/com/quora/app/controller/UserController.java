@@ -4,7 +4,6 @@ import com.quora.app.dto.FeedResponseDTO;
 import com.quora.app.dto.NewUserRequestDTO;
 import com.quora.app.dto.NewUserResponseDTO;
 import com.quora.app.service.IUserService;
-import jakarta.validation.Path;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,27 +38,43 @@ public class UserController {
                 .doOnError(error -> log.error("Something went wrong {}", error.getMessage()));
     }
 
-    @PostMapping("/{userId}/follow/{followerUserId}")
+    @PostMapping("/{userId}/follow/{followingId}")
     public Mono<ResponseEntity<String>> addUserAsFollowers(@PathVariable Integer userId,
-                                                           @PathVariable Integer followerUserId) {
+                                                           @PathVariable Integer followingId) {
 
-        if (userId.equals(followerUserId)) {
+        if (userId.equals(followingId)) {
             return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot follow themselves"));
         }
 
-        return userService.addUserAsFollower(userId, followerUserId)
+        return userService.addUserAsFollower(userId, followingId)
                 .map(msg -> ResponseEntity.ok(msg))
                 .doOnSuccess(response -> log.info("User followed"))
                 .doOnError(error -> log.error("User not added due to {}", error.getMessage()));
     }
 
     @GetMapping("/{userId}/feed")
-    public Mono<FeedResponseDTO> getUserFeed(@PathVariable  Integer userId){
+    public Mono<FeedResponseDTO> getUserFeed(@PathVariable  Integer userId,
+                                             @RequestParam(required = false) String cursor,
+                                             @RequestParam(defaultValue = "20") int pageSize){
 
-         return userService.getUserFeed(userId)
+        log.info("Cursor TIme and Size {},{}",cursor,pageSize);
+         return userService.getUserFeed(userId,cursor,pageSize)
                  .doOnSuccess(response->log.info("Able get Feed"))
                  .doOnError(error->log.error("Unable to get Feed"));
     }
+
+    @GetMapping("/{userId}/tagFeed")
+    public Mono<FeedResponseDTO> getUserFeedByTag(@PathVariable  Integer userId,
+                                                  @RequestParam(required = false) String cursor,
+                                                  @RequestParam(defaultValue = "20") int pageSize){
+
+        log.info("Cursor TIme and Size {},{}",cursor,pageSize);
+        return userService.getUserFeedByTag(userId,cursor,pageSize)
+                .doOnSuccess(response->log.info("Able get Feed"))
+                .doOnError(error->log.error("Unable to get Feed"));
+    }
+
+
 
 
 

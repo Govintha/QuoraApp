@@ -13,11 +13,12 @@ public final class FeedItemsMapper {
                 .id(q.getId())
                 .content(q.getContent())
                 .authorId(q.getUserId())
+                .questionId(q.getId())
                 .createdAt(q.getCreatedAt())
                 .build();
     }
 
-    public  static FeedItemDTO toFeedItemDTO(Answer a) {
+    public static FeedItemDTO toFeedItemDTO(Answer a) {
         return FeedItemDTO.builder()
                 .type(TargetType.ANSWER)
                 .id(a.getId())

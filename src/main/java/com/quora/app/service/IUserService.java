@@ -10,5 +10,6 @@ public interface  IUserService {
     Mono<NewUserResponseDTO> createUser(NewUserRequestDTO newUserRequestDTO);
     Mono<NewUserResponseDTO> getUser(Integer userId);
     Mono<String> addUserAsFollower(Integer userId,Integer followerUserId);
-    Mono<FeedResponseDTO> getUserFeed(Integer userId);
+    Mono<FeedResponseDTO> getUserFeed(Integer userId,String cursor,int size);
+    Mono<FeedResponseDTO> getUserFeedByTag(Integer userId,String cursor,int pageSize);
 }
