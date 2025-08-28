@@ -1,5 +1,6 @@
 package com.quora.app.service.impl;
 
+import com.quora.app.constant.CommonConstant;
 import com.quora.app.dto.FeedEntry;
 import com.quora.app.dto.FeedItemDTO;
 import com.quora.app.dto.FeedResponseDTO;
@@ -31,7 +32,7 @@ public class CacheFeedService {
 
     //  When user creates a new post will call this method to cache
     public Mono<Void> distributePostToFollowers(Integer authorId, FeedEntry entry) {
-        return userService.getUser(authorId) // fetch author
+        return userService.getUser(authorId)
                 .flatMap(user -> {
                     List<Integer> followers = user.getFollowerId();
                     if (followers == null || followers.isEmpty()) {
@@ -39,15 +40,15 @@ public class CacheFeedService {
                     }
 
                     long score = entry.getCreatedAt().toEpochMilli();
+                    int maxSize = CommonConstant.MAX_CACHE_PAGESIZE;
 
                     followers.forEach(followerId -> {
                         String key = getCacheKey(followerId);
 
-                        // Add feed entry with createdAt as score
+                        // Add feed entry
                         redisTemplate.opsForZSet().add(key, entry, score);
+                        redisTemplate.opsForZSet().removeRange(key, 0, -maxSize+1);
 
-                        // Keep only latest 10 items (trim older ones)
-                        redisTemplate.opsForZSet().removeRange(key, 0, -11);
                     });
 
                     return Mono.empty();
