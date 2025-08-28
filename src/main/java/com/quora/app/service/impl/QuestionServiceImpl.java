@@ -1,6 +1,7 @@
 package com.quora.app.service.impl;
 
 import com.quora.app.adapter.QuestionMapper;
+import com.quora.app.dto.FeedEntry;
 import com.quora.app.dto.QuestionRequestDTO;
 import com.quora.app.dto.QuestionResponseDTO;
 import com.quora.app.entity.Question;
@@ -29,19 +30,38 @@ public class QuestionServiceImpl implements IQuestionService {
     private final QuestionRepository questionRepository;
     private final KafkaEventProducerService kafkaProducerService;
     private final IUserService userService;
+    private final CacheFeedService feedCacheService;
 
-    @Override
     public Mono<QuestionResponseDTO> createQuestion(QuestionRequestDTO questionDTO) {
-        //to check valid User
-        userService.getUser(questionDTO.getUserId())
-                .switchIfEmpty(Mono.error(new RuntimeException("User Not found")));
-        Question entity = QuestionMapper.toEntity(questionDTO);
-        log.info("Final Question Entity {}",entity);
-      return questionRepository.save(entity)
-                 .map(QuestionMapper::toResponseDTO)
-                 .doOnSuccess(response-> log.info("Success Fully Created "))
-                 .doOnError(error-> log.error("Something went wrong while save question {}",error.getMessage()));
+        return userService.getUser(questionDTO.getUserId())
+                .switchIfEmpty(Mono.error(new RuntimeException("User Not found")))
+                .flatMap(user -> {
+                    Question entity = QuestionMapper.toEntity(questionDTO);
+
+                    return questionRepository.save(entity)
+                            .map(QuestionMapper::toResponseDTO)
+                            .flatMap(response -> {
+                                FeedEntry entry = new FeedEntry(
+                                        TargetType.QUESTION,
+                                        entity.getId(),
+                                        entity.getCreatedAt()
+                                );
+
+//                                //  Add to author’s own feed
+//                                Mono<Void> addToAuthorFeed =
+//                                        feedCacheService.storeFeedEntry(entity.getUserId(), entry);
+
+                                //  Fanout to followers
+                                Mono<Void> fanout =
+                                        feedCacheService.distributePostToFollowers(entity.getUserId(), entry);
+
+                                return Mono.when( fanout) // run both
+                                        .thenReturn(response);
+                            });
+                });
     }
+
+
 
     @Override
     public Flux<QuestionResponseDTO> getAllQuestionByAuthorId(String authorId) {

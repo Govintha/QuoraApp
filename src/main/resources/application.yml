@@ -7,6 +7,9 @@ spring:
       port: 27017
       database: quora_db
       auto-index-creation: true
+    redis:
+      host: localhost
+      port: 6376
 
   kafka:
     bootstrap-servers: localhost:9092

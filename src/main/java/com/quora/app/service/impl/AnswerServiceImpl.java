@@ -4,6 +4,7 @@ import com.quora.app.adapter.AnswerMapper;
 import com.quora.app.adapter.QuestionAnswerMapper;
 import com.quora.app.dto.AnswerRequestDTO;
 import com.quora.app.dto.AnswerResponseDTO;
+import com.quora.app.dto.FeedEntry;
 import com.quora.app.dto.QuestionAnswerDTO;
 import com.quora.app.enumaration.TargetType;
 import com.quora.app.events.ViewCountEvent;
@@ -29,28 +30,57 @@ public class AnswerServiceImpl implements IAnswerService {
     private final QuestionRepository questionRepository;
     private final IUserService userService;
     private final KafkaEventProducerService kafkaProducerService;
+    private final CacheFeedService cacheFeedService;
+
 
     @Override
     public Mono<AnswerResponseDTO> createAnswer(AnswerRequestDTO answerRequestDTO) {
-        userService.getUser(answerRequestDTO.getUserId());
-        return answerRepository.save(AnswerMapper.toEntity(answerRequestDTO))
-                .flatMap(savedAnswer ->
-                        questionRepository.findById(savedAnswer.getQuestionId())
-                                .flatMap(question -> {
-                                    if (question.getAnswerID()== null) {
-                                        question.setAnswerID(new ArrayList<>());
-                                    }
-                                    question.getAnswerID().add(savedAnswer.getId());
-                                    return questionRepository.save(question)
+        return userService.getUser(answerRequestDTO.getUserId())
+                //Check if the user exists
+                .switchIfEmpty(Mono.error(new RuntimeException("User Not Found")))
+                //  If user exists continue
+                .flatMap(user ->
+                        //  Save the answer into DB
+                        answerRepository.save(AnswerMapper.toEntity(answerRequestDTO))
+
+                                //  After saving answer, update the related Question
+                                .flatMap(savedAnswer ->
+                                        questionRepository.findById(savedAnswer.getQuestionId())
+                                                .flatMap(question -> {
+                                                    //Ensure answer list exists
+                                                    if (question.getAnswerID() == null) {
+                                                        question.setAnswerID(new ArrayList<>());
+                                                    }
+                                                    // Add this new answerId
+                                                    question.getAnswerID().add(savedAnswer.getId());
+
+                                                    // Save updated question and return savedAnswer
+                                                    return questionRepository.save(question)
+                                                            .thenReturn(savedAnswer);
+                                                })
+                                )
+
+                                //  Add this answer to the Feed cache
+                                .flatMap(savedAnswer -> {
+                                    FeedEntry entry = new FeedEntry(
+                                            TargetType.ANSWER,
+                                            savedAnswer.getId(),
+                                            savedAnswer.getCreatedAt()
+                                    );
+
+                                    //  Fanout to followers
+                                    Mono<Void> fanout =
+                                            cacheFeedService.distributePostToFollowers(savedAnswer.getUserId(), entry);
+
+                                    return Mono.when(fanout)
                                             .thenReturn(savedAnswer);
                                 })
-                )
-                .map(AnswerMapper::toAnswerResponseDTO)
-                .doOnSuccess(response -> log.info("Successfully Created"))
+                ).map(AnswerMapper::toAnswerResponseDTO)
+                .doOnSuccess(response -> log.info("Successfully Created Answer"))
                 .doOnError(error -> log.error("Unable to create Answer", error));
     }
 
-    @Override
+        @Override
     public Mono<String> deleteAnswerByID(String answerID) {
 
         return answerRepository.findById(answerID)
