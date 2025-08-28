@@ -64,21 +64,44 @@ public class CacheFeedService {
                 ? Long.MAX_VALUE
                 : Instant.parse(cursor).toEpochMilli();
 
-        // Get entries newer → older (reverse order)
+        // 1. Get from Redis
         Set<FeedEntry> raw = redisTemplate.opsForZSet()
-                .reverseRangeByScore(key, 0, cursorScore-1, 0, pageSize);
+                .reverseRangeByScore(key, 0, cursorScore - 1, 0, pageSize);
 
-        List<FeedEntry> pageEntries = new ArrayList<>(raw);
+        List<FeedEntry> cacheEntries = new ArrayList<>(raw);
 
-//        //  If cache empty → fallback to DB
-//        if (pageEntries.isEmpty()) {
-//            return feedService.fetchFromDB(userId, cursor, pageSize) // implement in your service
-//                    .map(feedList -> buildResponse(userId, feedList));
-//        }
+        int remaining = pageSize - cacheEntries.size();
+        Instant newCursor = cacheEntries.isEmpty()
+                ? Instant.ofEpochMilli(cursorScore)
+                : cacheEntries.get(cacheEntries.size() - 1).getCreatedAt();
 
-        return feedService.buildFeed(pageEntries)
-                .map(feedList -> buildResponse(userId, feedList));
+        // 2. Build feed from cache
+        Mono<List<FeedItemDTO>> cacheFeedMono = feedService.buildFeed(cacheEntries);
+
+        if (remaining <= 0) {
+            // Enough posts in cache
+            return cacheFeedMono.map(feedList -> buildResponse(userId, feedList));
+        }
+
+        // Fetch remaining from DB
+        Mono<FeedResponseDTO> dbFeedMono = userService.getUserFeed(userId, newCursor.toString(), remaining);
+
+        //  Merge cache + DB results
+        return Mono.zip(cacheFeedMono, dbFeedMono)
+                .map(tuple -> {
+                    log.info("Getting from DB+Cache");
+                    List<FeedItemDTO> merged = new ArrayList<>();
+                    merged.addAll(tuple.getT1()); // cache feed
+                    merged.addAll(tuple.getT2().getFeed()); // db feed
+
+                    // Ensure correct descending order by createdAt
+                    merged.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+
+                    return buildResponse(userId, merged);
+                });
     }
+
+
 
 
     private FeedResponseDTO buildResponse(Integer userId, List<FeedItemDTO> feedList) {

@@ -83,6 +83,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Mono<FeedResponseDTO> getUserFeed(Integer userId, String cursor, int size) {
+        log.info("Getting From DB");
         Instant cursorInstant = (cursor == null || cursor.isEmpty())
                 ? Instant.now()
                 : Instant.parse(cursor);
